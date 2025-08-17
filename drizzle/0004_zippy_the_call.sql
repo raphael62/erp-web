@@ -1,0 +1,1 @@
+ALTER TABLE "locations" RENAME COLUMN "is_active" TO "active";
