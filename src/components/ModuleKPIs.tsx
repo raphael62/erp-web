@@ -1,43 +1,50 @@
-"use client";
+// src/components/ModuleKPIs.tsx
+import type { ReactNode, SVGProps, ComponentType } from "react";
+import { CircleHelp } from "lucide-react";
 
-import * as React from "react";
-import { Circle } from "lucide-react";
-
-type IconType = React.ComponentType<{ className?: string; "aria-hidden"?: boolean }>;
+/** A small KPI card with an icon, label and value. */
+type IconType = ComponentType<SVGProps<SVGSVGElement>>;
 
 type Props = {
-  /** Pass the icon COMPONENT (e.g., LayoutDashboard), NOT <LayoutDashboard /> */
+  /** Small text above the value */
+  label?: string;
+  /** Main metric value (number, string, or JSX) */
+  value?: ReactNode;
+  /** Lucide icon component (e.g., Users, Package). Defaults to CircleHelp */
   icon?: IconType;
-  label: string;
-  value: string | number;
-  sublabel?: string;
+  /** Optional helper text under the value */
+  helpText?: string;
+  /** Optional trend text/badge under the value */
+  trend?: ReactNode;
+  /** Extra classNames for the outer wrapper */
   className?: string;
 };
 
 export default function ModuleKPIs({
-  icon,
-  label,
-  value,
-  sublabel,
+  label = "—",
+  value = "—",
+  icon: Icon = CircleHelp,
+  helpText,
+  trend,
   className = "",
 }: Props) {
-  const display = typeof value === "number" ? value.toLocaleString() : String(value);
-  const IconComp = icon ?? Circle; // safe fallback
-
   return (
     <div
-      className={`flex items-center gap-3 rounded-md border bg-white px-3 py-2 ${className}`}
-      role="group"
-      aria-label={`${label} ${display}`}
+      className={
+        "rounded-2xl border bg-white/50 p-4 shadow-sm backdrop-blur " + className
+      }
     >
-      <div className="flex h-9 w-9 items-center justify-center rounded-md bg-violet-50">
-        <IconComp className="h-5 w-5 text-violet-600" aria-hidden="true" />
+      <div className="flex items-center gap-2">
+        <Icon className="h-5 w-5 text-violet-600" aria-hidden={true} />
+        <span className="text-sm text-gray-500">{label}</span>
       </div>
-      <div className="min-w-0 leading-tight">
-        <div className="truncate text-xs text-gray-500">{label}</div>
-        <div className="truncate text-base font-semibold text-gray-900">{display}</div>
-        {sublabel ? <div className="truncate text-[11px] text-gray-500">{sublabel}</div> : null}
-      </div>
+
+      <div className="mt-2 text-2xl font-semibold text-gray-900">{value}</div>
+
+      {trend ? <div className="mt-1 text-sm text-gray-600">{trend}</div> : null}
+      {helpText ? (
+        <div className="mt-2 text-xs text-gray-400">{helpText}</div>
+      ) : null}
     </div>
   );
 }

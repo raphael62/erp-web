@@ -1,50 +1,47 @@
-"use client";
-
-import Link from "next/link";
-import { MAIN_MODULES, visible } from "@/config/modules";
-import { useCurrentModule } from "@/hooks/useCurrentModule";
+// src/components/ModuleOverview.tsx
 import ModuleKPIs from "./ModuleKPIs";
+import { Users, Package, ShoppingCart, DollarSign } from "lucide-react";
 
+/** KPI overview grid — replace placeholder values with real data later. */
 export default function ModuleOverview() {
-  const module = useCurrentModule();
-
-  if (!module) {
-    return (
-      <main className="p-6">
-        <h1 className="text-2xl font-bold">Overview</h1>
-        <p className="text-gray-500">No module context found for this route.</p>
-      </main>
-    );
-  }
-
-  const cards = visible(module.submenus || []).filter(s => s.href !== module.href);
+  const customersCount = 0;
+  const productsCount = 0;
+  const ordersToday = 0;
+  const revenueToday = "₵0.00";
 
   return (
-    <main className="p-6">
+    <section className="w-full">
       <div className="mb-4">
-        <h1 className="text-3xl font-bold">{module.name}</h1>
-        <p className="text-gray-500">Overview</p>
+        <h2 className="text-xl font-semibold">Overview</h2>
+        <p className="text-sm text-gray-500">Key performance indicators</p>
       </div>
 
-      {/* Module-specific KPIs */}
-      <ModuleKPIs />
-
-      {/* Quick links */}
-      {cards.length > 0 && (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {cards.map((s) => (
-            <Link
-              key={s.href}
-              href={s.href}
-              className="rounded-lg border p-5 hover:bg-gray-50 block"
-            >
-              <div className="text-lg font-semibold mb-1">{s.name}</div>
-              <div className="text-gray-500 text-sm">Open {s.name}</div>
-            </Link>
-          ))}
-        </div>
-      )}
-    </main>
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <ModuleKPIs
+          label="Customers"
+          value={customersCount}
+          icon={Users}
+          helpText="Total customers in the system"
+        />
+        <ModuleKPIs
+          label="Products"
+          value={productsCount}
+          icon={Package}
+          helpText="Active products"
+        />
+        <ModuleKPIs
+          label="Orders (Today)"
+          value={ordersToday}
+          icon={ShoppingCart}
+          helpText="Orders created today"
+        />
+        <ModuleKPIs
+          label="Revenue (Today)"
+          value={revenueToday}
+          icon={DollarSign}
+          helpText="VAT-inclusive revenue"
+        />
+      </div>
+    </section>
   );
 }
-

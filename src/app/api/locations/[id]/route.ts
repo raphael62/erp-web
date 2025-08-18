@@ -1,66 +1,107 @@
 // src/app/api/locations/[id]/route.ts
-import { NextResponse } from "next/server";
-import { db } from "@/db/client";
-import { locations } from "@/db/schema";
+import { NextRequest, NextResponse } from "next/server";
 import { eq } from "drizzle-orm";
 
-export async function PUT(
-  req: Request,
-  { params }: { params: { id: string } }
+// ⬇️ Adjust these to your project paths if needed
+import { db } from "@/lib/db";
+import { locations } from "@/db/schema";
+
+// GET /api/locations/:id
+export async function GET(
+  _req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const id = Number(params.id);
-    if (!Number.isFinite(id)) {
-      return NextResponse.json({ error: "Invalid id" }, { status: 400 });
+    const { id } = await params;
+    const idNum = Number(id); // NaN-safe if id is already a string key
+
+    const rows = await db
+      .select()
+      .from(locations)
+      .where(eq(locations.id, idNum as any))
+      .limit(1);
+
+    if (rows.length === 0) {
+      return NextResponse.json({ error: "Not found" }, { status: 404 });
     }
 
-    const body = (await req.json()) as {
-      code?: string;
-      name?: string;
-      levelGroupName?: string | null;
-      active?: boolean;
-    };
+    return NextResponse.json(rows[0], { status: 200 });
+  } catch (err) {
+    console.error("GET /locations/:id error", err);
+    return NextResponse.json({ error: "Server error" }, { status: 500 });
+  }
+}
 
-    if (!body.code || !body.name) {
+// PUT /api/locations/:id
+export async function PUT(
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const { id } = await params;
+    const idNum = Number(id); // NaN-safe if id is already a string key
+    const body = await req.json();
+
+const updateData: Partial<typeof locations.$inferInsert> = {};
+
+// allow updating 'code' (string)
+if (typeof body.code === "string") updateData.code = body.code;
+
+// allow updating 'groupName' (string or null)
+if (typeof body.levelgroupName === "string" || body.levelgroupName === null) {
+  updateData.levelGroupName = body.levelgroupName;
+}
+
+// allow updating 'active' (boolean)
+if (typeof body.active === "boolean") updateData.active = body.active;
+
+// usually we DON'T allow changing createdAt from the API — omit it
+
+    if (Object.keys(updateData).length === 0) {
       return NextResponse.json(
-        { error: "Code and Name are required" },
+        { error: "No valid fields to update" },
         { status: 400 }
       );
     }
 
-    await db
+    const updated = await db
       .update(locations)
-      .set({
-        code: body.code.trim(),
-        name: body.name.trim(),
-        levelGroupName: body.levelGroupName ?? null,
-        active: body.active ?? true,
-      })
-      .where(eq(locations.id, id));
+      .set(updateData)
+      .where(eq(locations.id, idNum as any))
+      .returning();
 
-    return NextResponse.json({ ok: true });
-  } catch (e: any) {
-    return NextResponse.json(
-      { error: e.message || "Update failed" },
-      { status: 500 }
-    );
+    if (updated.length === 0) {
+      return NextResponse.json({ error: "Not found" }, { status: 404 });
+    }
+
+    return NextResponse.json(updated[0], { status: 200 });
+  } catch (err) {
+    console.error("PUT /locations/:id error", err);
+    return NextResponse.json({ error: "Server error" }, { status: 500 });
   }
 }
 
-export async function GET(_req: Request, { params }: { params: { id: string } }) {
-  const id = Number(params.id);
-  const rows = await db.select().from(locations).where(eq(locations.id, id)).limit(1);
-  const row = rows[0];
-  if (!row) return NextResponse.json({ error: "Not found" }, { status: 404 });
-  return NextResponse.json(row);
-}
-
-
+// DELETE /api/locations/:id
 export async function DELETE(
-  _req: Request,
-  { params }: { params: { id: string } }
+  _req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
 ) {
-  const id = Number(params.id);
-  await db.delete(locations).where(eq(locations.id, id));
-  return NextResponse.json({ ok: true });
+  try {
+    const { id } = await params;
+    const idNum = Number(id); // NaN-safe if id is already a string key
+
+    const deleted = await db
+      .delete(locations)
+      .where(eq(locations.id, idNum as any))
+      .returning();
+
+    if (deleted.length === 0) {
+      return NextResponse.json({ error: "Not found" }, { status: 404 });
+    }
+
+    return NextResponse.json({ ok: true, id }, { status: 200 });
+  } catch (err) {
+    console.error("DELETE /locations/:id error", err);
+    return NextResponse.json({ error: "Server error" }, { status: 500 });
+  }
 }
