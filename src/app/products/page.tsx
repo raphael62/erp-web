@@ -64,8 +64,8 @@ export default function ProductsPage() {
               .some((v) => v.toLowerCase().includes(q))
           );
     rows = [...rows].sort((a, b) => {
-      const av = (a[sortKey] ?? "") as any;
-      const bv = (b[sortKey] ?? "") as any;
+      const av = String(a[sortKey] ?? "");
+      const bv = String(b[sortKey] ?? "");
       if (av < bv) return sortDir === "asc" ? -1 : 1;
       if (av > bv) return sortDir === "asc" ? 1 : -1;
       return 0;
@@ -119,7 +119,7 @@ export default function ProductsPage() {
       if (!res.ok) throw new Error(data?.error || "Failed to save");
       setShow(false);
       await load();
-    } catch (err: any) { setError(err.message); }
+    } catch (err: unknown) { setError(err instanceof Error ? err.message : 'Unknown error'); }
     finally { setBusy(false); }
   }
 

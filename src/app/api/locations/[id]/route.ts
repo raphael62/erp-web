@@ -18,7 +18,7 @@ export async function GET(
     const rows = await db
       .select()
       .from(locations)
-      .where(eq(locations.id, idNum as any))
+      .where(eq(locations.id, idNum))
       .limit(1);
 
     if (rows.length === 0) {
@@ -67,7 +67,7 @@ if (typeof body.active === "boolean") updateData.active = body.active;
     const updated = await db
       .update(locations)
       .set(updateData)
-      .where(eq(locations.id, idNum as any))
+      .where(eq(locations.id, idNum))
       .returning();
 
     if (updated.length === 0) {
@@ -92,7 +92,7 @@ export async function DELETE(
 
     const deleted = await db
       .delete(locations)
-      .where(eq(locations.id, idNum as any))
+      .where(eq(locations.id, idNum))
       .returning();
 
     if (deleted.length === 0) {

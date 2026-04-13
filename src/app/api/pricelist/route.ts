@@ -106,10 +106,11 @@ export async function POST(req: Request) {
     }).returning();
 
     return NextResponse.json(row, { status: 201 });
-  } catch (e: any) {
-    const msg = (e?.message || '').includes('ux_pricelist_range')
+  } catch (e: unknown) {
+    const err = e as { message?: string };
+    const msg = (err?.message || '').includes('ux_pricelist_range')
       ? 'A price already exists for this product/priceType/packUnit and date range.'
-      : e?.message || 'Server error';
+      : err?.message || 'Server error';
     return NextResponse.json({ error: msg }, { status: 500 });
   }
 }

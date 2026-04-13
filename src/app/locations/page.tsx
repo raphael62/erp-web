@@ -79,8 +79,8 @@ export default function LocationsPage() {
           );
 
     rows = [...rows].sort((a, b) => {
-      const av = (a[sortKey] ?? "") as any;
-      const bv = (b[sortKey] ?? "") as any;
+      const av = String(a[sortKey] ?? "");
+      const bv = String(b[sortKey] ?? "");
       if (av < bv) return sortDir === "asc" ? -1 : 1;
       if (av > bv) return sortDir === "asc" ? 1 : -1;
       return 0;
@@ -137,8 +137,8 @@ export default function LocationsPage() {
       if (!res.ok) throw new Error(data?.error || "Failed to save location");
       setShow(false);
       await load();
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Unknown error');
     } finally {
       setBusy(false);
     }

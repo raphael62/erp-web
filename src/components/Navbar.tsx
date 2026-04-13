@@ -7,8 +7,6 @@ import { useState } from 'react';
 import { PanelLeftClose, PanelLeftOpen } from 'lucide-react';
 import ThemeToggle from './ThemeToggle';
 import { useUIState } from '@/context/ui-state';
-import clsx from 'clsx';
-
 function cx(...classes: Array<string | false | undefined>) {
   return classes.filter(Boolean).join(' ');
 }

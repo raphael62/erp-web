@@ -54,7 +54,7 @@ export default function CustomersPage() {
       if (!res.ok) throw new Error(data.error || 'Failed to save');
       setForm({ code:'', name:'', priceType:'Wholesale', bexecsId:'', locationId:'', creditLimit:'' });
       await load();
-    } catch (err:any) { setError(err.message); }
+    } catch (err: unknown) { setError(err instanceof Error ? err.message : 'Unknown error'); }
     finally { setBusy(false); }
   };
 
@@ -69,7 +69,7 @@ export default function CustomersPage() {
           onChange={e=>setForm(f=>({...f, name:e.target.value}))}/>
 
         <select className="border px-3 py-2 rounded" value={form.priceType}
-          onChange={e=>setForm(f=>({...f, priceType:e.target.value as any}))}>
+          onChange={e=>setForm(f=>({...f, priceType:e.target.value as 'Wholesale'|'Retail'|'Special'}))}>
           <option>Wholesale</option><option>Retail</option><option>Special</option>
         </select>
 

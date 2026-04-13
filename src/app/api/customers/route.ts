@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { db } from '@/db/client';
-import { customers, priceTypeEnum } from '@/db/schema';
+import { customers } from '@/db/schema';
 import { eq } from 'drizzle-orm';
 
 export const runtime = 'nodejs';
